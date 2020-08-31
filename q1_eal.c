@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int isEqual(char *str1, char *str2);
-int getIndex(char **matrix, char *str, int size);
-
 struct Item {
         float price;
         int quantity;
@@ -11,22 +8,31 @@ struct Item {
 };
 
 struct Node {
-        struct Item item;
+        struct Item *item;
         struct Node *nextNode;
 };
 
 struct List {
-        struct Node head;
+        struct Node *head;
         int size;
 };
+
+struct List* createList(void);
+int isEqual(char *str1, char *str2);
+int getIndex(char **matrix, char *str, int size);
+int insertNode(struct List *list, struct Item *item, int index);
+
+
 
 
 int main(void)
 {
+        struct List *list = createList();
         // usrCmd needs instant allocation, otherwise it will point to NULL
         char *usrCmd = malloc(sizeof("REMOVERGRUPO"));
         // Both variables below initialized with -1 so we'll be able
         // to tell if it was reasigned later.
+        char *name;
         float price = -1.0;
         int quantity = -1;
 
@@ -39,15 +45,16 @@ int main(void)
                 "PROCURAR",
         };
 
-        scanf("%s %f %d", usrCmd, &price, &quantity);
+        scanf("%s %s %f %d", usrCmd, name, &price, &quantity);
         int index = getIndex(cmds, usrCmd, 5);
 
-        printf("Input: %s\n", usrCmd);
-        printf("Price: %f\n", price);
-        printf("Quantity: %d\n", quantity);
-
-        // TODO: Create functions to work with the linked list
-        // insert(char *name, float price, int quantity)
+        if (index == 0) {
+                struct Item *item = (struct Item*)malloc(sizeof(struct Item));
+                item->name = name;
+                item->price = price;
+                item->quantity = quantity;
+                printf("State of insertion: %d", insertNode(list, item, 0));
+        }
 }
 
 /*
@@ -74,16 +81,18 @@ struct List* createList(void)
  * int value: integer value to be added to the list
  * int index: index to insert the value
  * 
- * Returns 0 if the insertion was successfull. Otherwise returns 1.
+ * Returns 1 if the insertion was successfull. Otherwise returns 0.
 */
-int insertNode(struct List *list, struct Item item, int index)
+int insertNode(struct List *list, 
+               struct Item  *item, 
+               int          index)
 {
         struct Node *newNode, *current;
         newNode = (struct Node*)malloc(sizeof(struct Node));
-        node->item;
+        newNode->item = item;
 
         if (index > list->size)
-                return 1;
+                return 0;
         
 
         if (index == 0) {
@@ -99,13 +108,13 @@ int insertNode(struct List *list, struct Item item, int index)
                 newNode->nextNode = current->nextNode;
                 current->nextNode = newNode;
         }
-        list->size++
+        list->size++;
         
-        return 0
-}
+        return 1;
+};
 
 /*
- * Removes node at a given index of the list
+ * Removes node that contains the item's name. 
  * 
  * Returns: list size after the function execution
 */
@@ -132,7 +141,30 @@ int removeNode(struct List *list, char *name)
         }
 
         return list->size;
-}
+};
+
+/*
+ * Reduces the item's quantity by quantity requested
+ * 
+ * Returns: 1 if item was removed, otherwise 0.
+*/
+int removeByQuantity(struct List *list, char *name, int quantity)
+{       
+        int wasRemoved = 0;
+        struct Node *current = list->head;
+
+        while (current) {
+                if (isEqual(current->item->name, name)) {
+                        current->item->quantity -= quantity;
+                        wasRemoved = 1;
+                        break;
+                }
+                current = current->nextNode;
+                
+        }
+
+        return wasRemoved;
+};
 
 /*
  * Compares str1 and str2 to see if they are equal
@@ -157,7 +189,9 @@ int isEqual(char *str1, char *str2)
  * returns: the index of the given String. If String is not
  *          found, returns -1.
 */
-int getIndex(char **matrix, char *str, int size)
+int getIndex(char **matrix, 
+             char  *str, 
+             int    size)
 {
         int index = -1;
         int i = 0;
