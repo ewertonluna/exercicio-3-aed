@@ -22,8 +22,7 @@ void printList(struct List *list);
 int isEqual(char *str1, char *str2);
 int getIndex(char **matrix, char *str, int size);
 int insertNode(struct List *list, struct Item *item, int index);
-
-
+int removeByQuantity(struct List *list, char *name, int quantity);
 
 
 int main(void)
@@ -46,16 +45,24 @@ int main(void)
                 "PROCURAR",
         };
 
-        scanf("%s %s %f %d", usrCmd, name, &price, &quantity);
+        // scanf("%s %s %f %d", usrCmd, name, &price, &quantity);
+        scanf("%s", usrCmd);
         int index = getIndex(cmds, usrCmd, 5);
 
         if (index == 0) {
+                scanf("%s %f %d", name, &price, &quantity);
                 struct Item *item = (struct Item*)malloc(sizeof(struct Item));
                 item->name = name;
                 item->price = price;
                 item->quantity = quantity;
                 insertNode(list, item, 0);
-                // printList(list);
+                printList(list);
+        } else if (index == 1) {
+                scanf("%s %d", name, &quantity);
+                removeByQuantity(list, name, quantity);
+        } else if (index == 2) {
+                scanf("%f", &price);
+                removeByGroup(list, price);
         }
 }
 
@@ -96,7 +103,6 @@ int insertNode(struct List *list,
         if (index > list->size)
                 return 0;
         
-
         if (index == 0) {
                 newNode->nextNode = list->head;
                 list->head = newNode;
@@ -167,6 +173,28 @@ int removeByQuantity(struct List *list, char *name, int quantity)
 
         return wasRemoved;
 };
+
+/*
+ * Removes all items with individual price bigger than
+ * the one provided by the user.
+ * 
+ * Returns: Number of itens removed
+*/
+int removeByGroup(struct List *list, float price) {
+        int itensRemoved = 0;
+        struct Node *current = list->head;
+
+        while (current) {
+                if (price > current->price) {
+                        removeNode(list, current->name);
+                        itensRemoved += 1;
+                }
+                current = current->nextNode;
+        }
+
+        return itensRemoved;
+}
+
 
 /*
  * Compares str1 and str2 to see if they are equal
