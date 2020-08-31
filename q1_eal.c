@@ -18,6 +18,7 @@ struct List {
 };
 
 struct List* createList(void);
+void printList(struct List *list);
 int isEqual(char *str1, char *str2);
 int getIndex(char **matrix, char *str, int size);
 int insertNode(struct List *list, struct Item *item, int index);
@@ -53,7 +54,8 @@ int main(void)
                 item->name = name;
                 item->price = price;
                 item->quantity = quantity;
-                printf("State of insertion: %d", insertNode(list, item, 0));
+                insertNode(list, item, 0);
+                // printList(list);
         }
 }
 
@@ -207,3 +209,20 @@ int getIndex(char **matrix,
 
         return index;
 };
+
+/*
+ * Prints string representation of the list
+*/
+void printList(struct List *list)
+{
+        struct Node *current = list->head;
+
+        while(current) {
+                char *name = current->item->name;
+                int quantity = current->item->quantity;
+                float price = current->item->price;
+                printf("%s : %d : %.2f ===>", name, quantity, price);
+                current = current->nextNode;
+        }
+        printf("\n");
+}
