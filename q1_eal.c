@@ -23,6 +23,8 @@ int isEqual(char *str1, char *str2);
 int getIndex(char **matrix, char *str, int size);
 int insertNode(struct List *list, struct Item *item, int index);
 int removeByQuantity(struct List *list, char *name, int quantity);
+int removeByGroup(struct List *list, float price);
+void consultList(struct List *list);
 
 
 int main(void)
@@ -30,11 +32,9 @@ int main(void)
         struct List *list = createList();
         // usrCmd needs instant allocation, otherwise it will point to NULL
         char *usrCmd = malloc(sizeof("REMOVERGRUPO"));
-        // Both variables below initialized with -1 so we'll be able
-        // to tell if it was reasigned later.
         char *name;
-        float price = -1.0;
-        int quantity = -1;
+        float price;
+        int quantity;
 
         // cmds is a pointer to a matrix of pointers (pointer to a pointer)
         char *cmds[5] = {
@@ -44,26 +44,33 @@ int main(void)
                 "CONSULTAR",
                 "PROCURAR",
         };
+        
+        while (scanf("%s", usrCmd) != EOF) {
+                
+                int index = getIndex(cmds, usrCmd, 5);
 
-        // scanf("%s %s %f %d", usrCmd, name, &price, &quantity);
-        scanf("%s", usrCmd);
-        int index = getIndex(cmds, usrCmd, 5);
-
-        if (index == 0) {
-                scanf("%s %f %d", name, &price, &quantity);
-                struct Item *item = (struct Item*)malloc(sizeof(struct Item));
-                item->name = name;
-                item->price = price;
-                item->quantity = quantity;
-                insertNode(list, item, 0);
+                if (index == 0) {
+                        scanf("%s %f %d", name, &price, &quantity);
+                        struct Item *item = (struct Item*)malloc(sizeof(struct Item));
+                        item->name = name;
+                        item->price = price;
+                        item->quantity = quantity;
+                        insertNode(list, item, 0);
+                } else if (index == 1) {
+                        scanf("%s %d", name, &quantity);
+                        removeByQuantity(list, name, quantity);
+                } else if (index == 2) {
+                        scanf("%f", &price);
+                        removeByGroup(list, price);
+                } else if (index == 3) {
+                        consultList(list);
+                } else if (index == 4) {
+                        
+                }
                 printList(list);
-        } else if (index == 1) {
-                scanf("%s %d", name, &quantity);
-                removeByQuantity(list, name, quantity);
-        } else if (index == 2) {
-                scanf("%f", &price);
-                removeByGroup(list, price);
+
         }
+        
 }
 
 /*
@@ -84,6 +91,21 @@ struct List* createList(void)
 }
 
 /*
+ * Prints a message with the total price of the list
+*/
+void consultList(struct List *list)
+{
+        float price = 0;
+        struct Node *current = list->head;
+
+        while (current) {
+                price += current->item->price * current->item->quantity;
+                current = current->nextNode;
+        }
+        printf("Atualmente a lista esta em R$%.1f\n", price);
+}
+
+/*
  * Inserts Node at a given index of the list
  * 
  * struct List *list: pointer to struct list
@@ -92,12 +114,12 @@ struct List* createList(void)
  * 
  * Returns 1 if the insertion was successfull. Otherwise returns 0.
 */
-int insertNode(struct List *list, 
+int insertNode(struct List  *list, 
                struct Item  *item, 
-               int          index)
+               int           index)
 {
         struct Node *newNode, *current;
-        newNode = (struct Node*)malloc(sizeof(struct Node));
+        newNode = malloc(sizeof(struct Node));
         newNode->item = item;
 
         if (index > list->size)
@@ -112,7 +134,6 @@ int insertNode(struct List *list,
                 for (int i = 0; i < index - 1; i++) {
                         current = current->nextNode;
                 }
-
                 newNode->nextNode = current->nextNode;
                 current->nextNode = newNode;
         }
@@ -185,8 +206,8 @@ int removeByGroup(struct List *list, float price) {
         struct Node *current = list->head;
 
         while (current) {
-                if (price > current->price) {
-                        removeNode(list, current->name);
+                if (price > current->item->price) {
+                        removeNode(list, current->item->name);
                         itensRemoved += 1;
                 }
                 current = current->nextNode;
@@ -249,8 +270,9 @@ void printList(struct List *list)
                 char *name = current->item->name;
                 int quantity = current->item->quantity;
                 float price = current->item->price;
-                printf("%s : %d : %.2f ===>", name, quantity, price);
+                printf("[%s : %d : %.2f] ===> ", name, quantity, price);
                 current = current->nextNode;
         }
         printf("\n");
 }
+
