@@ -23,10 +23,10 @@ struct List {
 
 int main(void)
 {
-        // userInput needs instant allocation, otherwise it will point to NULL
+        // usrCmd needs instant allocation, otherwise it will point to NULL
         char *usrCmd = malloc(sizeof("REMOVERGRUPO"));
-        // Both variables below initialized with -1 so we know if 
-        // it was reasigned later.
+        // Both variables below initialized with -1 so we'll be able
+        // to tell if it was reasigned later.
         float price = -1.0;
         int quantity = -1;
 
@@ -60,17 +60,17 @@ struct List* createList(void)
         struct List *list;
         list = (struct List*)malloc(sizeof(struct List));
 
-        if (list != NULL) {
+        if (list != NULL)
                 list->size = 0;
-        }
+        
         
         return list;
 }
 
 /*
- * Inserts Node in a given index of the list
+ * Inserts Node at a given index of the list
  * 
- * struct List *list: pointer to struct List
+ * struct List *list: pointer to struct list
  * int value: integer value to be added to the list
  * int index: index to insert the value
  * 
@@ -82,9 +82,9 @@ int insertNode(struct List *list, struct Item item, int index)
         newNode = (struct Node*)malloc(sizeof(struct Node));
         node->item;
 
-        if (index > list->size) {
+        if (index > list->size)
                 return 1;
-        }
+        
 
         if (index == 0) {
                 newNode->nextNode = list->head;
@@ -104,6 +104,35 @@ int insertNode(struct List *list, struct Item item, int index)
         return 0
 }
 
+/*
+ * Removes node at a given index of the list
+ * 
+ * Returns: list size after the function execution
+*/
+int removeNode(struct List *list, char *name)
+{       
+        struct Node *prev = NULL;
+        struct Node *current = list->head;
+
+        while (current) {
+                if (isEqual(current->item->name, name)) {
+                        // if prev is NULL
+                        if (!prev) {
+                                list->head = current->nextNode;
+                                current->nextNode = NULL;
+                        } else {
+                                prev->nextNode = current->nextNode;
+                                current->nextNode = NULL;
+                        }
+                        list->size--;
+                }
+                prev = current;
+                current = current->nextNode;
+                
+        }
+
+        return list->size;
+}
 
 /*
  * Compares str1 and str2 to see if they are equal
