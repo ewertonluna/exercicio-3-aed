@@ -68,6 +68,44 @@ struct List* createList(void)
 }
 
 /*
+ * Inserts Node in a given index of the list
+ * 
+ * struct List *list: pointer to struct List
+ * int value: integer value to be added to the list
+ * int index: index to insert the value
+ * 
+ * Returns 0 if the insertion was successfull. Otherwise returns 1.
+*/
+int insertNode(struct List *list, struct Item item, int index)
+{
+        struct Node *newNode, *current;
+        newNode = (struct Node*)malloc(sizeof(struct Node));
+        node->item;
+
+        if (index > list->size) {
+                return 1;
+        }
+
+        if (index == 0) {
+                newNode->nextNode = list->head;
+                list->head = newNode;
+        } else {
+                current = list->head;
+        
+                for (int i = 0; i < index - 1; i++) {
+                        current = current->nextNode;
+                }
+
+                newNode->nextNode = current->nextNode;
+                current->nextNode = newNode;
+        }
+        list->size++
+        
+        return 0
+}
+
+
+/*
  * Compares str1 and str2 to see if they are equal
  * 
  * char *str1: pointer to string to be compared against
