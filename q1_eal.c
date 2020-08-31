@@ -4,6 +4,23 @@
 int isEqual(char *str1, char *str2);
 int getIndex(char **matrix, char *str, int size);
 
+struct Item {
+        float price;
+        int quantity;
+        char *name;
+};
+
+struct Node {
+        struct Item item;
+        struct Node *nextNode;
+};
+
+struct List {
+        struct Node head;
+        int size;
+};
+
+
 int main(void)
 {
         // userInput needs instant allocation, otherwise it will point to NULL
@@ -29,11 +46,26 @@ int main(void)
         printf("Price: %f\n", price);
         printf("Quantity: %d\n", quantity);
 
-        // TODO: Create functions to insert in the linked list
+        // TODO: Create functions to work with the linked list
+        // insert(char *name, float price, int quantity)
 }
 
+/*
+ * Creates an empty List
+ * 
+ * Returns: pointer to List
+*/
+struct List* createList(void)
+{
+        struct List *list;
+        list = (struct List*)malloc(sizeof(struct List));
 
-
+        if (list != NULL) {
+                list->size = 0;
+        }
+        
+        return list;
+}
 
 /*
  * Compares str1 and str2 to see if they are equal
@@ -41,7 +73,7 @@ int main(void)
  * char *str1: pointer to string to be compared against
  * char *str2: pointer to string to be compared with
  * 
- * returns: 1 if they are equal, otherwise 0.
+ * Returns: 1 if they are equal, otherwise 0.
 */
 int isEqual(char *str1, char *str2)
 {
