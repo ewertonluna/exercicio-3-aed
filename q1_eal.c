@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct Item {
         float price;
@@ -24,7 +25,9 @@ int getIndex(char **matrix, char *str, int size);
 int insertNode(struct List *list, struct Item *item, int index);
 int removeByQuantity(struct List *list, char *name, int quantity);
 int removeByGroup(struct List *list, float price);
+int removeNode(struct List *list, char *name);
 void consultList(struct List *list);
+void searchItem(struct List *list, char *name);
 
 
 int main(void)
@@ -32,7 +35,6 @@ int main(void)
         struct List *list = createList();
         // usrCmd needs instant allocation, otherwise it will point to NULL
         char *usrCmd = malloc(sizeof("REMOVERGRUPO"));
-        char *name;
         float price;
         int quantity;
 
@@ -50,6 +52,7 @@ int main(void)
                 int index = getIndex(cmds, usrCmd, 5);
 
                 if (index == 0) {
+                        char *name = malloc(sizeof(char) * 100);
                         scanf("%s %f %d", name, &price, &quantity);
                         struct Item *item = (struct Item*)malloc(sizeof(struct Item));
                         item->name = name;
@@ -57,6 +60,7 @@ int main(void)
                         item->quantity = quantity;
                         insertNode(list, item, 0);
                 } else if (index == 1) {
+                        char *name = malloc(sizeof(char) * 100);
                         scanf("%s %d", name, &quantity);
                         removeByQuantity(list, name, quantity);
                 } else if (index == 2) {
@@ -65,8 +69,11 @@ int main(void)
                 } else if (index == 3) {
                         consultList(list);
                 } else if (index == 4) {
-                        
+                        char *name = malloc(sizeof(char) * 100);
+                        scanf("%s", name);
+                        searchItem(list, name);
                 }
+
                 printList(list);
 
         }
@@ -86,8 +93,40 @@ struct List* createList(void)
         if (list != NULL)
                 list->size = 0;
         
-        
         return list;
+}
+
+/*
+ * Searchs item by a given name and prints its data
+ * 
+ * 
+ * char *name: Item's name to be searched
+*/
+void searchItem(struct List *list, char *name)
+{
+        int found = 0;
+        struct Node *current = list->head;
+        
+        while (current) {
+                // if (isEqual(current->item->name, name)) {
+                if (strcmp(current->item->name, name) == 0) {
+                        printf("%s\n", current->item->name);
+                        printf("- %.1f\n", current->item->price);
+                        printf("- %d\n", current->item->quantity);
+                        break;
+                        // found = 1;
+                        // break;
+                }
+                current = current->nextNode;
+        }
+
+        // if (found) {
+        //         printf("%s\n", current->item->name);
+        //         printf("- %.1f\n", current->item->price);
+        //         printf("- %d\n", current->item->quantity);
+        // } else {
+        //         printf("%s nao foi encontrado.\n", name);
+        // }
 }
 
 /*
@@ -98,7 +137,7 @@ void consultList(struct List *list)
         float price = 0;
         struct Node *current = list->head;
 
-        while (current) {
+        for (int i = 0; i < list->size; i++) {
                 price += current->item->price * current->item->quantity;
                 current = current->nextNode;
         }
@@ -137,6 +176,7 @@ int insertNode(struct List  *list,
                 newNode->nextNode = current->nextNode;
                 current->nextNode = newNode;
         }
+        // free(newNode); This is causing a segfault 
         list->size++;
         
         return 1;
@@ -153,8 +193,8 @@ int removeNode(struct List *list, char *name)
         struct Node *current = list->head;
 
         while (current) {
-                if (isEqual(current->item->name, name)) {
-                        // if prev is NULL
+                // if (isEqual(current->item->name, name)) {
+                if (strcmp(current->item->name, name) == 0) {
                         if (!prev) {
                                 list->head = current->nextNode;
                                 current->nextNode = NULL;
@@ -163,6 +203,7 @@ int removeNode(struct List *list, char *name)
                                 current->nextNode = NULL;
                         }
                         list->size--;
+                        break;
                 }
                 prev = current;
                 current = current->nextNode;
@@ -183,7 +224,8 @@ int removeByQuantity(struct List *list, char *name, int quantity)
         struct Node *current = list->head;
 
         while (current) {
-                if (isEqual(current->item->name, name)) {
+                // if (isEqual(current->item->name, name)) {
+                if (strcmp(current->item->name, name) == 0) {
                         current->item->quantity -= quantity;
                         wasRemoved = 1;
                         break;
@@ -204,10 +246,11 @@ int removeByQuantity(struct List *list, char *name, int quantity)
 int removeByGroup(struct List *list, float price) {
         int itensRemoved = 0;
         struct Node *current = list->head;
-
         while (current) {
-                if (price > current->item->price) {
-                        removeNode(list, current->item->name);
+                if (current->item->price > price) {
+                        current->item->quantity = 0;
+                        // removeNode(list, current->item->name);
+                        // current->nextNode = NULL;
                         itensRemoved += 1;
                 }
                 current = current->nextNode;
@@ -248,7 +291,8 @@ int getIndex(char **matrix,
         int i = 0;
 
         while (i < size) {
-                if (isEqual(*matrix, str)) {     
+                // if (isEqual(*matrix, str)) {   
+                if (strcmp(*matrix, str) == 0) {     
                         index = i;
                         break; 
                 }
@@ -266,11 +310,11 @@ void printList(struct List *list)
 {
         struct Node *current = list->head;
 
-        while(current) {
+        while (current) {
                 char *name = current->item->name;
                 int quantity = current->item->quantity;
                 float price = current->item->price;
-                printf("[%s : %d : %.2f] ===> ", name, quantity, price);
+                printf("[%s : %d : R$%.2f] ===> ", name, quantity, price);
                 current = current->nextNode;
         }
         printf("\n");
