@@ -1,3 +1,9 @@
+/*
+ * CESAR SCHOOL
+ * ALGORITMOS E ESTRUTURA DE DADOS
+ * Ewerton de Araújo Luna
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -74,7 +80,7 @@ int main(void)
                         searchItem(list, name);
                 }
 
-                printList(list);
+                // printList(list);
 
         }
         
@@ -90,8 +96,10 @@ struct List* createList(void)
         struct List *list;
         list = (struct List*)malloc(sizeof(struct List));
 
+        // I forgot to initialize head to NULL.
         if (list != NULL)
                 list->size = 0;
+                // list->head = NULL;
         
         return list;
 }
@@ -110,23 +118,20 @@ void searchItem(struct List *list, char *name)
         while (current) {
                 // if (isEqual(current->item->name, name)) {
                 if (strcmp(current->item->name, name) == 0) {
-                        printf("%s\n", current->item->name);
-                        printf("- %.1f\n", current->item->price);
-                        printf("- %d\n", current->item->quantity);
+                        found = 1;
                         break;
-                        // found = 1;
-                        // break;
                 }
                 current = current->nextNode;
         }
-
-        // if (found) {
-        //         printf("%s\n", current->item->name);
-        //         printf("- %.1f\n", current->item->price);
-        //         printf("- %d\n", current->item->quantity);
-        // } else {
-        //         printf("%s nao foi encontrado.\n", name);
-        // }
+        
+        if (found) {
+                printf("%s\n", current->item->name);
+                printf("- %.1f\n", current->item->price);
+                printf("- %d\n", current->item->quantity);
+        } else {
+                printf("%s nao foi encontrado.\n", name);
+        }
+        printf("\n");
 }
 
 /*
@@ -142,6 +147,7 @@ void consultList(struct List *list)
                 current = current->nextNode;
         }
         printf("Atualmente a lista esta em R$%.1f\n", price);
+        printf("\n");
 }
 
 /*
@@ -176,7 +182,6 @@ int insertNode(struct List  *list,
                 newNode->nextNode = current->nextNode;
                 current->nextNode = newNode;
         }
-        // free(newNode); This is causing a segfault 
         list->size++;
         
         return 1;
@@ -227,6 +232,9 @@ int removeByQuantity(struct List *list, char *name, int quantity)
                 // if (isEqual(current->item->name, name)) {
                 if (strcmp(current->item->name, name) == 0) {
                         current->item->quantity -= quantity;
+                        if (current->item->quantity == 0) {
+                                removeNode(list, name);
+                        }
                         wasRemoved = 1;
                         break;
                 }
@@ -246,16 +254,24 @@ int removeByQuantity(struct List *list, char *name, int quantity)
 int removeByGroup(struct List *list, float price) {
         int itensRemoved = 0;
         struct Node *current = list->head;
+        struct Node *next;
+
         while (current) {
                 if (current->item->price > price) {
-                        current->item->quantity = 0;
-                        // removeNode(list, current->item->name);
+                        next = current->nextNode;
+                        removeNode(list, current->item->name);
                         // current->nextNode = NULL;
                         itensRemoved += 1;
                 }
-                current = current->nextNode;
-        }
+                
+                if (next) {
+                        current = next;
+                        next = NULL;
+                } else {
+                        current = current->nextNode;
+                }
 
+        }
         return itensRemoved;
 }
 
@@ -317,6 +333,7 @@ void printList(struct List *list)
                 printf("[%s : %d : R$%.2f] ===> ", name, quantity, price);
                 current = current->nextNode;
         }
+        printf("NULL");
         printf("\n");
 }
 
